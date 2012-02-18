@@ -10,11 +10,11 @@ class MainHandler(tornado.web.RequestHandler):
     @tornado.gen.engine
     def get(self):
         self.set_header('Content-Type', 'text/plain')
-        self.write(" [*] Waiting....")
+        self.write(" [*] Waiting....\n")
         self.flush()
-        r = yield tornado.gen.Task( self.client.subscribe, 'test' )
-        self.write(r)
-        print r
+        r = yield tornado.gen.Task( client.subscribe, 'test' )
+        self.write(" [!] Got %r\n" % (r,))
+        self.flush()
         self.finish()
 
 

@@ -8,6 +8,7 @@ client = rons.Client()
 class MainHandler(tornado.web.RequestHandler):
     @tornado.web.asynchronous
     @tornado.gen.engine
+    @rons.save_generator
     def get(self):
         self.set_header('Content-Type', 'text/plain')
         self.write(" [*] Waiting....\n")
@@ -16,6 +17,9 @@ class MainHandler(tornado.web.RequestHandler):
         self.write(" [!] Got %r\n" % (r,))
         self.flush()
         self.finish()
+
+    def on_connection_close(self):
+        rons.stop_generator(self)
 
 
 application = tornado.web.Application([

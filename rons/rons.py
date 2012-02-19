@@ -82,20 +82,23 @@ class Client(_Connection):
             elif args[0] == 'unsubscribe':
                 return
             elif args[0] == 'message':
-                # cleanup old subscriptions
-                for topic in self.unsubscribes:
-                    #print 'unsubs ' + repr(topic)
-                    self.write('UNSUBSCRIBE', topic)
-                self.unsubscribes.clear()
-
                 # process msg
                 assert len(args) is 3
                 topic, msg = args[1], args[2]
-                subscriptions = self.subscriptions[topic]
-                del self.subscriptions[topic]
-                self.unsubscribes[topic] = True
-                for callback in subscriptions:
-                    callback(msg)
+                active_subscription = topic not in self.unsubscribes
+
+                # cleanup old subscriptions
+                for t in self.unsubscribes:
+                    #print 'unsubs ' + repr(t)
+                    self.write('UNSUBSCRIBE', t)
+                self.unsubscribes.clear()
+
+                if active_subscription:
+                    subscriptions = self.subscriptions[topic]
+                    del self.subscriptions[topic]
+                    self.unsubscribes[topic] = True
+                    for callback in subscriptions:
+                        callback(msg)
             else:
                 assert False, repr(args)
         else:
